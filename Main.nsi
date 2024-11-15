@@ -1,11 +1,6 @@
-Unicode True
-!define BASS_DLL "bass.dll"
-!define BASSLOC "$PLUGINSDIR\${BASS_DLL}"
-!define MP3NAME "ODDNUMBER.mp3"
-!define MP3LOC "$PLUGINSDIR\${MP3NAME}"
-!define BASS_LOOP 4
+Unicode true
 SetCompressor /SOLID lzma
-OutFile "AOH3Setup.exe"
+OutFile 'AOH3Setup.exe'
 !include "MUI.nsh"
 !include "LogicLib.nsh"
 !insertmacro MUI_PAGE_WELCOME
@@ -13,22 +8,26 @@ OutFile "AOH3Setup.exe"
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
 !insertmacro MUI_LANGUAGE "English"
+!define SND_NAME "ODDNUMBER.mp3"
 ShowInstDetails show
-
+ReserveFile "${SND_NAME}"
+Name "AoH3Setup"
+BrandingText "AoH3Setup by RiritoXXL"
 Function .onInit
-    InitPluginsDir
-    File /oname=${MP3LOC} '${MP3NAME}'
-    File /oname=${BASSLOC} '${BASS_DLL}'
+InitPluginsDir
+File "/oname=${NSISDIR}\ODDNUMBER.mp3" 'ODDNUMBER.mp3'
+; this is very beginning of the code, so we may skip Push and Pop for $0 - it is not in use yet
+  System::Call 'winmm::mciSendStringW("play ${SND_NAME} repeat", i 0, i 0, i 0) i .r0'
 
-    FindWindow $0 '#32770' $HWNDPARENT
+FunctionEnd
 
-    System::Call '${BASSLOC}::BASS_Init(i -1, i 44100, i 0, i r0, i n) b.r0'
-    System::Call '${BASSLOC}::BASS_Start()'
-    System::Call '${BASSLOC}::BASS_StreamCreateFile(b 0, t "$PLUGINSDIR/ODDNUMBER.mp3", i 0, i 0, i ${BASS_LOOP}) i.r1'
-    System::Call '${BASSLOC}::BASS_ChannelPlay(i r1, b 0)'
+Function .onGUIEnd
+;free BASS
+
 FunctionEnd
 
 Section 01
     InitPluginsDir
-    File /r "F:\SteamLibrary\steamapps\common\Age of History 3\*.*"
+    SetOutPath "C:\ProgramFiles\AoH3"
+    File /nonfatal /r "F:\SteamLibrary\steamapps\common\Age of History 3\*.*"
 SectionEnd
